@@ -3,6 +3,7 @@ from aiogram import Bot
 from aiogram.filters import CommandObject
 from aiogram.fsm.context import FSMContext
 from core.utils.sender_state import Steps
+from core.utils.dbconnect import Request
 from core.keyboards.inline import get_confirm_button_keyboard
 
 
@@ -29,7 +30,10 @@ async def q_button(call: CallbackQuery, bot: Bot, state: FSMContext):
         await state.set_state(Steps.get_text_button)
     elif call.data == 'no_button':
         await call.message.edit_reply_markup(reply_markup=None)
-        #aaaa
+        data = await state.get_data()
+        message_id = int(data.get('message_id'))
+        chat_id = int(data.get('chat_id'))
+        await confirm(call.message, bot, message_id, chat_id)
 
     await call.answer()
 
@@ -50,7 +54,42 @@ async def get_url_button(message: Message, bot: Bot, state: FSMContext):
             )
         ]
     ])
+    data = await state.get_data()
+    message_id = int(data.get('message_id'))
+    chat_id = int(data.get('chat_id'))
+    await confirm(message, bot, message_id, chat_id, added_keyboards)
 
 
-async def confirm(message: Message, bot: Bot, state: FSMContext):
-    pass
+async def confirm(message: Message, bot: Bot, message_id: int, chat_id: int, reply_markup: InlineKeyboardMarkup = None):
+    await bot.copy_message(chat_id, chat_id, message_id, reply_markup=reply_markup)
+    await message.answer(f'Сообщение, которое будет отправлено. Подтвердите рассылку', reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text='Подтвердить',
+                callback_data='confirm_sender'
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text='Отменить',
+                callback_data='cancel_sender'
+            )
+        ]
+    ]))
+
+
+async def sender_decide(call: CallbackQuery, bot: Bot, state: FSMContext, request: Request):
+    data = await state.get_data()
+    message_id = data.get('message_id')
+    chat_id = data.get('chat_id')
+    text_button = data.get('text_button')
+    url_button = data.get('url_button')
+    name_camp = data.get('name_camp')
+
+    if call.data == 'confirm_sender':
+        await call.message.edit_text(f'Начинаю рассылку', reply_markup=None)
+    elif call.data == 'cancel_sender':
+        await call.message.edit_text(f'Отменено', reply_markup=None)
+
+    await state.clear()
+
