@@ -14,6 +14,7 @@ from core.handlers import sender
 import asyncpg
 
 from core.handlers import basic
+from core.utils.sender_list import SenderList
 from core.utils.sender_state import Steps
 
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -48,12 +49,15 @@ async def start():
 
     dp.message.register(sender.get_sender, Command(commands='sender', magic=F.args), F.chat.id == settings.bots.admin_id)
     dp.message.register(sender.get_message, Steps.get_message, F.chat.id == settings.bots.admin_id)
+    dp.callback_query.register(sender.sender_decide, F.data.in_(['confirm_sender', 'cancel_sender']))
     dp.callback_query.register(sender.q_button, Steps.q_button)
     dp.message.register(sender.get_text_button, Steps.get_text_button, F.chat.id == settings.bots.admin_id)
-    dp.message.register(sender.get_url_button, Steps.get_url_button, F.chat.id == settings.bots.admin_id)
+    dp.message.register(sender.get_url_button, Steps.get_url_button, F.chat.id == settings.bots.admin_id, F.text)
+
+    sender_list = SenderList(bot, pool_connect)
 
     try:
-        await dp.start_polling(bot)
+        await dp.start_polling(bot, senderlist=sender_list)
     finally:
         await bot.session.close()
 

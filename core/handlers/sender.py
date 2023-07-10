@@ -2,6 +2,8 @@ from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKe
 from aiogram import Bot
 from aiogram.filters import CommandObject
 from aiogram.fsm.context import FSMContext
+
+from core.utils.sender_list import SenderList
 from core.utils.sender_state import Steps
 from core.utils.dbconnect import Request
 from core.keyboards.inline import get_confirm_button_keyboard
@@ -34,6 +36,7 @@ async def q_button(call: CallbackQuery, bot: Bot, state: FSMContext):
         message_id = int(data.get('message_id'))
         chat_id = int(data.get('chat_id'))
         await confirm(call.message, bot, message_id, chat_id)
+        await state.set_state(Steps.get_url_button)
 
     await call.answer()
 
@@ -78,7 +81,7 @@ async def confirm(message: Message, bot: Bot, message_id: int, chat_id: int, rep
     ]))
 
 
-async def sender_decide(call: CallbackQuery, bot: Bot, state: FSMContext, request: Request):
+async def sender_decide(call: CallbackQuery, bot: Bot, state: FSMContext, request: Request, senderlist: SenderList):
     data = await state.get_data()
     message_id = data.get('message_id')
     chat_id = data.get('chat_id')
@@ -88,6 +91,11 @@ async def sender_decide(call: CallbackQuery, bot: Bot, state: FSMContext, reques
 
     if call.data == 'confirm_sender':
         await call.message.edit_text(f'Начинаю рассылку', reply_markup=None)
+        if not await request.check_table(name_camp):
+            await request.create_table(name_camp)
+        count = await senderlist.broadcaster(name_camp, chat_id, message_id, text_button, url_button)
+        await call.message.answer(f'Успешно разослали рекламное сообщение [{count}] пользователям')
+        await request.delete_table(name_camp)
     elif call.data == 'cancel_sender':
         await call.message.edit_text(f'Отменено', reply_markup=None)
 
