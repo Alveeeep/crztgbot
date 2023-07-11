@@ -6,6 +6,7 @@ import logging
 
 from aiogram.filters import Command
 
+from core.handlers.basic import get_start
 from core.settings import settings
 
 #from core.utils.commands import set_commands
@@ -30,8 +31,8 @@ async def stop_bot(bot: Bot):
 
 
 async def create_pool():
-    return await asyncpg.create_pool(user='postgres', password='qwerty', database='triggerbot',
-                                     host='127.0.0.1', port=5432, command_timeout=60)
+    return await asyncpg.create_pool(user='alvir', password='MiNeR4321', database='users',
+                                     host='37.46.130.139', port=5454, command_timeout=60)
 
 
 async def start():
@@ -53,7 +54,7 @@ async def start():
     dp.callback_query.register(sender.q_button, Steps.q_button)
     dp.message.register(sender.get_text_button, Steps.get_text_button, F.chat.id == settings.bots.admin_id)
     dp.message.register(sender.get_url_button, Steps.get_url_button, F.chat.id == settings.bots.admin_id, F.text)
-
+    dp.message.register(get_start, Command(commands=['start', 'run']))
     sender_list = SenderList(bot, pool_connect)
 
     try:
