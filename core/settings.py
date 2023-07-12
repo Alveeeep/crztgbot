@@ -5,7 +5,7 @@ from environs import Env
 @dataclass()
 class Bots:
     bot_token: str
-    admin_id: str
+    admin_id: int
 
 
 @dataclass()
@@ -20,7 +20,7 @@ def get_settings(path: str):
     return Settings(
         bots=Bots(
             bot_token=env.str("TOKEN"),
-            admin_id=env.str("ADMIN_ID"),
+            admin_id=env.int("ADMIN_ID"),
         )
     )
 

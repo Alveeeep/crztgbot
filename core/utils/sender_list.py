@@ -28,7 +28,7 @@ class SenderList:
 
     async def update_statuse(self, table_name, user_id, statuse, description):
         async with self.connector.acquire() as connect:
-            query = f"UPDATE {table_name} SET statuse='{statuse}', description='{description}' WHERE user_id={user_id}"
+            query = f"UPDATE {table_name} SET statuse='{statuse}', description='{description}' WHERE user_id={user_id};"
             await connect.execute(query)
 
     async def send_message(self, user_id: int, from_chat_id: int, message_id: int, name_camp: str,

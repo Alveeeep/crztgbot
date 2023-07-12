@@ -11,7 +11,7 @@ from core.settings import settings
 
 #from core.utils.commands import set_commands
 from core.middlewares.dbmiddleware import DbSession
-from core.handlers import sender
+from core.handlers.sender import get_sender, get_message, sender_decide, q_button, get_text_button, get_url_button
 import asyncpg
 
 from core.handlers import basic
@@ -48,15 +48,15 @@ async def start():
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
 
-    dp.message.register(sender.get_sender, Command(commands='sender', magic=F.args), F.chat.id == settings.bots.admin_id)
-    dp.message.register(sender.get_message, Steps.get_message, F.chat.id == settings.bots.admin_id)
-    dp.callback_query.register(sender.sender_decide, F.data.in_(['confirm_sender', 'cancel_sender']))
-    dp.callback_query.register(sender.q_button, Steps.q_button)
-    dp.message.register(sender.get_text_button, Steps.get_text_button, F.chat.id == settings.bots.admin_id)
-    dp.message.register(sender.get_url_button, Steps.get_url_button, F.chat.id == settings.bots.admin_id, F.text)
-    dp.message.register(get_start, Command(commands=['start', 'run']))
-    sender_list = SenderList(bot, pool_connect)
+    dp.message.register(get_sender, Command(commands='sender', magic=F.args), F.chat.id == settings.bots.admin_id)
+    dp.message.register(get_message, Steps.get_message, F.chat.id == settings.bots.admin_id)
+    dp.callback_query.register(sender_decide, F.data.in_(['confirm_sender', 'cancel_sender']))
+    dp.callback_query.register(q_button, Steps.q_button)
+    dp.message.register(get_text_button, Steps.get_text_button, F.chat.id == settings.bots.admin_id)
+    dp.message.register(get_url_button, Steps.get_url_button, F.chat.id == settings.bots.admin_id, F.text)
 
+    sender_list = SenderList(bot, pool_connect)
+    dp.message.register(get_start, Command(commands=['start', 'run']))
     try:
         await dp.start_polling(bot, senderlist=sender_list)
     finally:
