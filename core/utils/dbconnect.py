@@ -12,13 +12,13 @@ class Request:
         await self.connector.execute(query)
 
     async def check_table(self, name_table):
-        query = f"SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = '{name_table}';"
+        query = f"SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = '{name_table}');"
         return await self.connector.fetchval(query)
 
     async def create_table(self, name_table):
-        query = f"CREATE TABLE {name_table} (user_id bigint NOT NULL, statuse text, description text, PRIMARY KEY (user_id));"
+        query = f"CREATE TABLE {name_table} (user_id bigint NOT NULL, statuse text, description text, PRIMARY KEY (user_id));" #возможно добавить public.
         await self.connector.execute(query)
-        query = f"INSERT INTO {name_table} (user_id, statuse, description) SELECT user_id, 'waiting', null FROM datausers;"
+        query = f"INSERT INTO {name_table} (user_id, statuse, description) SELECT user_id, 'waiting', null FROM datausers"
         await self.connector.execute(query)
 
     async def delete_table(self, name_table):
