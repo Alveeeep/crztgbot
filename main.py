@@ -57,6 +57,7 @@ async def start():
 
     sender_list = SenderList(bot, pool_connect)
     dp.message.register(get_start, Command(commands=['start', 'run']))
+
     try:
         await dp.start_polling(bot, senderlist=sender_list)
     finally:

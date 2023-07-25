@@ -7,3 +7,7 @@ class Steps(StatesGroup):
     get_text_button = State()
     get_url_button = State()
 
+
+class Users(StatesGroup):
+
+

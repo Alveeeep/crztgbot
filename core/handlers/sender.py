@@ -65,20 +65,21 @@ async def get_url_button(message: Message, bot: Bot, state: FSMContext):
 
 async def confirm(message: Message, bot: Bot, message_id: int, chat_id: int, reply_markup: InlineKeyboardMarkup = None):
     await bot.copy_message(chat_id, chat_id, message_id, reply_markup=reply_markup)
-    await message.answer(f'Сообщение, которое будет отправлено. Подтвердите рассылку', reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(
-                text='Подтвердить',
-                callback_data='confirm_sender'
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text='Отменить',
-                callback_data='cancel_sender'
-            )
-        ]
-    ]))
+    await message.answer(f'Сообщение, которое будет отправлено. Подтвердите рассылку',
+                         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                             [
+                                 InlineKeyboardButton(
+                                     text='Подтвердить',
+                                     callback_data='confirm_sender'
+                                 )
+                             ],
+                             [
+                                 InlineKeyboardButton(
+                                     text='Отменить',
+                                     callback_data='cancel_sender'
+                                 )
+                             ]
+                         ]))
 
 
 async def sender_decide(call: CallbackQuery, bot: Bot, state: FSMContext, request: Request, senderlist: SenderList):
@@ -101,3 +102,6 @@ async def sender_decide(call: CallbackQuery, bot: Bot, state: FSMContext, reques
 
     await state.clear()
 
+
+async def confirm_choose(call: CallbackQuery, bot: Bot, request: Request):
+    await request.add_data(message.from_user.id, message.from_user.first_name)
