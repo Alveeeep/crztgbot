@@ -6,7 +6,7 @@ import logging
 
 from aiogram.filters import Command
 
-from core.handlers.basic import get_start
+from core.handlers.basic import get_start, get_choice
 from core.settings import settings
 
 #from core.utils.commands import set_commands
@@ -16,7 +16,7 @@ import asyncpg
 
 from core.handlers import basic
 from core.utils.sender_list import SenderList
-from core.utils.sender_state import Steps
+from core.utils.sender_state import Steps, Users
 
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
@@ -57,6 +57,7 @@ async def start():
 
     sender_list = SenderList(bot, pool_connect)
     dp.message.register(get_start, Command(commands=['start', 'run']))
+    dp.callback_query.register(get_choice, Users.get_choice)
 
     try:
         await dp.start_polling(bot, senderlist=sender_list)

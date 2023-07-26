@@ -9,5 +9,5 @@ class Steps(StatesGroup):
 
 
 class Users(StatesGroup):
-
+    get_choice = State()
 

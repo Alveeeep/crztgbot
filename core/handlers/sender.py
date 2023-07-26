@@ -101,7 +101,3 @@ async def sender_decide(call: CallbackQuery, bot: Bot, state: FSMContext, reques
         await call.message.edit_text(f'Отменено', reply_markup=None)
 
     await state.clear()
-
-
-async def confirm_choose(call: CallbackQuery, bot: Bot, request: Request):
-    await request.add_data(message.from_user.id, message.from_user.first_name)

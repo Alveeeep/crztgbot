@@ -20,8 +20,8 @@ def get_choose_keyboard():
 
 def get_choose_sender_keyboard():
     keyboard_builder = InlineKeyboardBuilder()
-    keyboard_builder.button(text='Для заказчиков', callback_data='for_z')
-    keyboard_builder.button(text='Для поставщиков', callback_data='for_p')
-    keyboard_builder.button(text='Всем', callback_data='all')
+    keyboard_builder.button(text='Для заказчиков', callback_data='zakazchik')
+    keyboard_builder.button(text='Для поставщиков', callback_data='postavchik')
+    keyboard_builder.button(text='Всем', callback_data='oba')
     keyboard_builder.adjust(2, 1)
     return keyboard_builder.as_markup()
