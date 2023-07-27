@@ -9,9 +9,10 @@ from aiogram.filters import Command
 from core.handlers.basic import get_start, get_choice
 from core.settings import settings
 
-#from core.utils.commands import set_commands
+# from core.utils.commands import set_commands
 from core.middlewares.dbmiddleware import DbSession
-from core.handlers.sender import get_sender, get_message, sender_decide, q_button, get_text_button, get_url_button
+from core.handlers.sender import get_sender, get_message, sender_decide, q_button, get_text_button, get_url_button, \
+    get_button_choice, get_confirm_choice
 import asyncpg
 
 from core.handlers import basic
@@ -22,7 +23,7 @@ asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 async def start_bot(bot: Bot):
-    #await set_commands(bot)
+    # await set_commands(bot)
     await bot.send_message(settings.bots.admin_id, text='Бот запущен!')
 
 
@@ -50,6 +51,8 @@ async def start():
 
     dp.message.register(get_sender, Command(commands='sender', magic=F.args), F.chat.id == settings.bots.admin_id)
     dp.message.register(get_message, Steps.get_message, F.chat.id == settings.bots.admin_id)
+    dp.callback_query.register(get_confirm_choice, Steps.get_choose)
+    dp.message.register(get_button_choice, Steps.choice_confirm, F.chat.id == settings.bots.admin_id)
     dp.callback_query.register(sender_decide, F.data.in_(['confirm_sender', 'cancel_sender']))
     dp.callback_query.register(q_button, Steps.q_button)
     dp.message.register(get_text_button, Steps.get_text_button, F.chat.id == settings.bots.admin_id)

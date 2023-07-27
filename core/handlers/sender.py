@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from core.utils.sender_list import SenderList
 from core.utils.sender_state import Steps
 from core.utils.dbconnect import Request
-from core.keyboards.inline import get_confirm_button_keyboard
+from core.keyboards.inline import get_confirm_button_keyboard, get_choose_sender_keyboard
 
 
 async def get_sender(message: Message, command: CommandObject, state: FSMContext):
@@ -21,8 +21,28 @@ async def get_sender(message: Message, command: CommandObject, state: FSMContext
 
 
 async def get_message(message: Message, state: FSMContext):
-    await message.answer(f'Готово. Добавить кнопку внизу рассылки?', reply_markup=get_confirm_button_keyboard())
+    await message.answer(f'Готово. Для кого назначается рассылка?', reply_markup=get_choose_sender_keyboard())
     await state.update_data(message_id=message.message_id, chat_id=message.from_user.id)
+    await state.set_state(Steps.get_choose)
+
+
+async def get_confirm_choice(call: CallbackQuery, state: FSMContext):
+    if call.data == 'zakazchik':
+        await call.message.answer(f'Рассылка для заказчиков.', reply_markup=None)
+        await state.update_data(choice='zakazchik')
+    elif call.data == 'postavchik':
+        await call.message.answer(f'Рассылка для поставщиков.', reply_markup=None)
+        await state.update_data(choice='postavchik')
+    elif call.data == 'oba':
+        await call.message.answer(f'Рассылка для всех.', reply_markup=None)
+        await state.update_data(choice='oba')
+    await state.set_state(Steps.choice_confirm)
+    await call.answer()
+
+
+async def get_button_choice(message: Message, bot: Bot, state: FSMContext):
+    await message.answer(f'Готово. Добавить кнопку внизу рассылки?', reply_markup=get_confirm_button_keyboard())
+    # await state.update_data(message_id=message.message_id, chat_id=message.from_user.id)
     await state.set_state(Steps.q_button)
 
 
@@ -89,11 +109,12 @@ async def sender_decide(call: CallbackQuery, bot: Bot, state: FSMContext, reques
     text_button = data.get('text_button')
     url_button = data.get('url_button')
     name_camp = data.get('name_camp')
+    choice = data.get('choice')
 
     if call.data == 'confirm_sender':
         await call.message.edit_text(f'Начинаю рассылку', reply_markup=None)
         if not await request.check_table(name_camp):
-            await request.create_table(name_camp)
+            await request.create_table(name_camp, choice)
         count = await senderlist.broadcaster(name_camp, chat_id, message_id, text_button, url_button)
         await call.message.answer(f'Успешно разослали рекламное сообщение [{count}] пользователям')
         await request.delete_table(name_camp)
