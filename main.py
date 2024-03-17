@@ -32,8 +32,8 @@ async def stop_bot(bot: Bot):
 
 
 async def create_pool():
-    return await asyncpg.create_pool(user='alvir', password='MiNeR4321', database='users',
-                                     host='37.46.130.139', port=5454, command_timeout=60)
+    return await asyncpg.create_pool(user='', password='', database='',
+                                     host='', port=5432, command_timeout=60)
 
 
 async def start():
